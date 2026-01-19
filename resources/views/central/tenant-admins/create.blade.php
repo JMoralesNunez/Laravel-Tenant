@@ -17,7 +17,7 @@
                         <option value="">Selecciona una tienda</option>
                         @foreach($tenants as $tenant)
                             <option value="{{ $tenant->id }}" {{ old('tenant_id') == $tenant->id ? 'selected' : '' }}>
-                                {{ $tenant->name }} ({{ $tenant->id }})
+                                {{ $tenant->name }}
                             </option>
                         @endforeach
                     </select>
