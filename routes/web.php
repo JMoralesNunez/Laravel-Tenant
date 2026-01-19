@@ -16,33 +16,36 @@ use App\Http\Controllers\Central\TenantAdminController;
 |
 */
 
-// Guest routes (not authenticated)
-Route::middleware('guest:central')->group(function () {
-    // Root redirect to login
-    Route::get('/', function () {
-        return redirect()->route('central.login');
+foreach (config('tenancy.central_domains') as $domain) {
+    Route::domain($domain)->group(function () {
+        // Guest routes (not authenticated)
+        Route::middleware('guest:central')->group(function () {
+            // Root redirect to login
+            Route::get('/', function () {
+                return redirect()->route('central.login');
+            });
+
+            Route::get('/login', [LoginController::class, 'showLoginForm'])->name('central.login');
+            Route::post('/login', [LoginController::class, 'login']);
+        });
+
+        // Authenticated central admin routes
+        Route::middleware('auth:central')->group(function () {
+            Route::post('/logout', [LoginController::class, 'logout'])->name('central.logout');
+
+            // Dashboard
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('central.dashboard');
+
+            // Tenants management
+            Route::post('/tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
+                ->name('central.tenants.toggle-status');
+            Route::resource('tenants', TenantController::class)->names('central.tenants');
+
+            // Central admins management
+            Route::resource('admins', CentralAdminController::class)->names('central.admins');
+
+            // Tenant admins management
+            Route::resource('tenant-admins', TenantAdminController::class)->names('central.tenant-admins');
+        });
     });
-
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('central.login');
-    Route::post('/login', [LoginController::class, 'login']);
-});
-
-// Authenticated central admin routes
-Route::middleware('auth:central')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout'])->name('central.logout');
-
-    // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('central.dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-
-    // Tenants management
-    Route::post('/tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
-        ->name('central.tenants.toggle-status');
-    Route::resource('tenants', TenantController::class)->names('central.tenants');
-
-    // Central admins management
-    Route::resource('admins', CentralAdminController::class)->names('central.admins');
-
-    // Tenant admins management
-    Route::resource('tenant-admins', TenantAdminController::class)->names('central.tenant-admins');
-});
+}

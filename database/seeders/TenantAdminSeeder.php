@@ -22,7 +22,7 @@ class TenantAdminSeeder extends Seeder
                 'tenant_id' => $tenant->id,
                 'name' => 'Admin ' . $tenant->name,
                 'email' => 'admin@' . $tenant->domains->first()->domain,
-                'password' => Hash::make('password'),
+                'password' => 'password',
             ]);
 
             $this->command->info("Admin creado para: {$tenant->name}");

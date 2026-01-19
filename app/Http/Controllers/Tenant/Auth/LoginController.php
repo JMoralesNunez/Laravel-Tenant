@@ -28,24 +28,22 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // Get current tenant ID
-        $tenantId = tenant('id');
-
-        // Find tenant admin
-        $admin = TenantAdmin::where('tenant_id', $tenantId)
-            ->where('email', $credentials['email'])
-            ->first();
-
-        if ($admin && Hash::check($credentials['password'], $admin->password)) {
-            // Manually login using session
-            $request->session()->put('tenant_admin_id', $admin->id);
+        // Attempt login using the 'tenant' guard
+        // The TenantAdmin model is configured to use the 'central' connection
+        if (
+            Auth::guard('tenant')->attempt([
+                'email' => $credentials['email'],
+                'password' => $credentials['password'],
+                'tenant_id' => tenant('id') // Ensure the admin belongs to this tenant
+            ], $request->boolean('remember'))
+        ) {
             $request->session()->regenerate();
 
             return redirect()->intended(route('tenant.dashboard'));
         }
 
         return back()->withErrors([
-            'email' => 'Las credenciales no coinciden con nuestros registros.',
+            'email' => 'Las credenciales no coinciden con nuestros registros o no tienes acceso a esta tienda.',
         ])->onlyInput('email');
     }
 
@@ -54,7 +52,8 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->session()->forget('tenant_admin_id');
+        Auth::guard('tenant')->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

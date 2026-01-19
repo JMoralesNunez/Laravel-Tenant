@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\TenantAdmin;
+use Illuminate\Support\Facades\Auth;
 
 class TenantAuth
 {
@@ -14,20 +14,18 @@ class TenantAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $adminId = $request->session()->get('tenant_admin_id');
-
-        if (!$adminId) {
+        if (!Auth::guard('tenant')->check()) {
             return redirect()->route('tenant.login');
         }
 
-        // Verify admin exists and belongs to current tenant
-        $admin = TenantAdmin::where('id', $adminId)
-            ->where('tenant_id', tenant('id'))
-            ->first();
+        // Verify the authenticated admin belongs to the current tenant
+        $admin = Auth::guard('tenant')->user();
 
-        if (!$admin) {
-            $request->session()->forget('tenant_admin_id');
-            return redirect()->route('tenant.login');
+        if ($admin->tenant_id !== tenant('id')) {
+            Auth::guard('tenant')->logout();
+            return redirect()->route('tenant.login')->withErrors([
+                'email' => 'No tienes permiso para acceder a esta tienda.'
+            ]);
         }
 
         // Share admin with views

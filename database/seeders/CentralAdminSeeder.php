@@ -16,13 +16,13 @@ class CentralAdminSeeder extends Seeder
         CentralAdmin::create([
             'name' => 'Admin MultiStore',
             'email' => 'admin@multistore.test',
-            'password' => Hash::make('password'),
+            'password' => 'password',
         ]);
 
         CentralAdmin::create([
             'name' => 'Super Admin',
             'email' => 'super@multistore.test',
-            'password' => Hash::make('password'),
+            'password' => 'password',
         ]);
     }
 }

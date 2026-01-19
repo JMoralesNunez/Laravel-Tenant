@@ -31,6 +31,10 @@ class TenantController extends Controller
      */
     public function store(Request $request)
     {
+        $domain = $request->domain;
+        if (!Str::endsWith($domain, '.multistore.test')) {
+            $domain = $domain . '.multistore.test';
+        }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'domain' => 'required|string|max:255|unique:domains,domain',
@@ -48,7 +52,7 @@ class TenantController extends Controller
 
         // Create domain for tenant
         $tenant->domains()->create([
-            'domain' => $validated['domain'],
+            'domain' => $domain,
         ]);
 
         return redirect()->route('central.tenants.index')
@@ -69,6 +73,11 @@ class TenantController extends Controller
      */
     public function update(Request $request, Tenant $tenant)
     {
+        $domain = $request->domain;
+        if (!Str::endsWith($domain, '.multistore.test')) {
+            $domain = $domain . '.multistore.test';
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'domain' => 'required|string|max:255|unique:domains,domain,' . $tenant->domains->first()?->id,
@@ -85,7 +94,7 @@ class TenantController extends Controller
         // Update domain
         if ($tenant->domains->first()) {
             $tenant->domains->first()->update([
-                'domain' => $validated['domain'],
+                'domain' => $domain,
             ]);
         }
 
