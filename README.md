@@ -101,7 +101,8 @@ Edit `.env` file with your database credentials:
 APP_NAME=MultiStore
 APP_URL=http://localhost
 
-DB_CONNECTION=mysql
+# Important that connection is set to central
+DB_CONNECTION=central 
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=your_database_name
@@ -120,8 +121,8 @@ php artisan migrate:fresh --seed
 # Create storage link for images
 php artisan storage:link
 
-# Run tenant migrations (creates tables in each tenant database)
-php artisan tenants:run migrate
+# Run tenant seeds 
+php artisan tenants:seed
 ```
 
 ### Step 4: Configure Local Hosts (Development)
