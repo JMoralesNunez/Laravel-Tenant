@@ -194,13 +194,7 @@ Access the application at:
      127.0.0.1    electronics.multistore.test
      ```
 
-4. **Run Migrations for New Tenant**
-   ```bash
-   # This creates the database and tables for the new tenant
-   php artisan tenants:run migrate
-   ```
-
-5. **Create Tenant Administrator**
+4. **Create Tenant Administrator**
    - In Central Admin, go to "Tenant Admins"
    - Click "Create Administrator"
    - Select the tenant
